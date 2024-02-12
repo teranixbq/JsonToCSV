@@ -64,9 +64,9 @@ func (college *service) GetUserCSV() error {
 	}
 
 	for _, r := range data {
-		var csvRow []string
-		csvRow = append(csvRow, r.Nim, r.Name, r.Campus)
-		if err := writer.Write(csvRow); err != nil {
+		var datacsv []string
+		datacsv = append(datacsv, r.Nim, r.Name, r.Campus)
+		if err := writer.Write(datacsv); err != nil {
 			return err
 		}
 	}
