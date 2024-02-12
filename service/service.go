@@ -1,8 +1,8 @@
 package service
 
 import (
+	"bytes"
 	"encoding/csv"
-	"os"
 
 	"github.com/teranixbq/goJsoncsv/model"
 	"github.com/teranixbq/goJsoncsv/repository"
@@ -15,7 +15,7 @@ type service struct {
 type ServiceInterface interface {
 	Insert(data model.College) error
 	Get() ([]model.College, error)
-	GetUserCSV() error
+	GetUserCSV() ([]byte, error)
 }
 
 func NewService(repository repository.RepositoryInterface) ServiceInterface {
@@ -43,33 +43,33 @@ func (college *service) Get() ([]model.College, error) {
 	return dataCollege, nil
 }
 
-func (college *service) GetUserCSV() error {
+func (college *service) GetUserCSV() ([]byte, error) {
 	data, err := college.Get()
 	if err != nil {
-		return err
+		return nil, err
 	}
 
-	outputFile, err := os.Create("public/datauser.csv")
-	if err != nil {
-		return err
-	}
-	defer outputFile.Close()
-
-	writer := csv.NewWriter(outputFile)
-	defer writer.Flush()
+	csvbuffer:= bytes.Buffer{}
+	writer := csv.NewWriter(&csvbuffer)
 
 	header := []string{"Nim", "Name", "Campus"}
 	if err := writer.Write(header); err != nil {
-		return err
+		return nil, err
 	}
 
-	for _, r := range data {
+	for _, v := range data {
 		var datacsv []string
-		datacsv = append(datacsv, r.Nim, r.Name, r.Campus)
+		datacsv = append(datacsv, v.Nim, v.Name, v.Campus)
 		if err := writer.Write(datacsv); err != nil {
-			return err
+			return nil, err
 		}
 	}
 
-	return nil
+	writer.Flush()
+
+	if err := writer.Error(); err != nil {
+		return nil, err
+	}
+
+	return csvbuffer.Bytes(), nil
 }
