@@ -15,4 +15,5 @@ func RouteInit(f *fiber.App, db *gorm.DB){
 
 	f.Post("/register", handler.Insert)
 	f.Get("/", handler.Get)
+	f.Get("/download",handler.CsvUser)
 }

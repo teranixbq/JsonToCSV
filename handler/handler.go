@@ -52,3 +52,17 @@ func (college *handler) Get(f *fiber.Ctx)error{
 	})
 
 }
+
+func (college *handler) CsvUser(f *fiber.Ctx)error {
+	err := college.service.GetUserCSV()
+	if err != nil {
+		return f.Status(400).JSON(fiber.Map{
+			"message": err.Error(),
+		})
+	}
+
+	f.Set(fiber.HeaderContentType, "text/csv")
+	f.Set(fiber.HeaderContentDisposition, "attachment; filename=datauser.csv")
+
+	return f.SendFile("public/datauser.csv")
+}
